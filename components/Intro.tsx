@@ -3,6 +3,7 @@
 import { Fragment, useRef } from 'react';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/gsap';
 import { site } from '@/data/site';
+import IntroOrnament from './IntroOrnament';
 
 /**
  * "Your sketch, made real.": a dark card with rounded top corners that slides straight up over
@@ -39,6 +40,15 @@ export default function Intro() {
           },
         });
       }
+      // the line-art frame sews itself in as the card rises; the stitched lines fade in
+      gsap.fromTo('.intro2 .orn .d', { strokeDashoffset: 1 }, {
+        strokeDashoffset: 0, ease: 'none', stagger: 0.012,
+        scrollTrigger: { trigger: sec, start: 'top 95%', end: 'center 60%', scrub: 1.2 },
+      });
+      gsap.fromTo('.intro2 .orn .st, .intro2 .orn .ticks', { opacity: 0 }, {
+        opacity: 1, ease: 'none',
+        scrollTrigger: { trigger: sec, start: 'top 80%', end: 'center 60%', scrub: 1.2 },
+      });
       gsap.to('.intro2 p .wd', {
         opacity: 1, stagger: 0.08, ease: 'none',
         scrollTrigger: { trigger: '.intro2 p', start: 'top 80%', end: 'bottom 45%', scrub: 1.2 },
@@ -48,6 +58,7 @@ export default function Intro() {
 
   return (
     <section className="intro2" id="about" ref={ref}>
+      <IntroOrnament />
       <div className="in">
         <h2 aria-label={t.lines.join(' ')}>
           {t.lines.map((line, i) => (

@@ -379,6 +379,24 @@ footer { --fx: max(20px, 5.2vw); background: #240606; color: #D9C2BD; overflow: 
 .intro2 p { margin: 0; max-width: 34ch; font: 400 clamp(19px, 1.9vw, 28px)/1.3 var(--font-intertight), var(--body); letter-spacing: -0.01em; color: #EBCDB8; }
 .intro2 p .wd { opacity: 0.25; }
 @media (prefers-reduced-motion: reduce) { .intro2 p .wd { opacity: 1; } }
+/* the line-art frame (components/IntroOrnament.tsx): faint peach lines on the maroon, one side
+   mirrored for the other, a hanger top centre and a tape measure along the bottom */
+.intro2 .orn { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.orn-side { position: absolute; top: 0; height: 100%; width: min(30vw, 560px); overflow: visible; }
+.orn-side.l { left: 0; }
+.orn-side.r { right: 0; transform: scaleX(-1); }
+.orn-top { position: absolute; top: clamp(14px, 2.6vw, 36px); left: 50%; width: clamp(84px, 8vw, 140px); height: auto; transform: translateX(-50%); overflow: visible; }
+.orn-tape { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 30px; }
+.orn :is(path, circle, ellipse, line, rect) { fill: none; stroke: rgba(235, 205, 184, 0.17); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.orn .d { stroke-dasharray: 1 1; }
+.orn .st { stroke-dasharray: 6 7; }
+.orn .ticks { stroke: none; fill: url(#ornTicks); }
+.orn pattern path { stroke-width: 1; stroke-linecap: butt; }
+/* phones: the drawings sit behind the text, so fainter and with thicker (still fine) lines */
+@media (max-width: 760px) {
+  .orn-side { width: 46vw; opacity: 0.6; }
+  .orn-side :is(path, circle, ellipse) { stroke-width: 3.5; }
+}
 /* desktop: the card's top edge already peeks 64px into the first screen */
 @media (min-width: 901px) { .intro2 { margin-top: -64px; } }
 @media (max-width: 600px) {
