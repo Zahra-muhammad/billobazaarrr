@@ -10,6 +10,7 @@ import Loader from '@/components/Loader';
 import Menu from '@/components/Menu';
 import Footer from '@/components/Footer';
 import SmoothScroll from '@/components/SmoothScroll';
+import SiteBar from '@/components/SiteBar';
 
 // Two fonts across the whole site (the "Your sketch, made real." pairing):
 // Archivo for headings: heavy, condensed (the width axis, set to 62 in globals.css), in capitals
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <SmoothScroll />
           <Loader />
           <Menu />
+          <SiteBar />
           <main>{children}</main>
           <Footer />
         </PageTransition>

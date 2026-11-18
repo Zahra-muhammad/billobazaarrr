@@ -9,7 +9,7 @@ import { site } from '@/data/site';
 import { FULL_LOGO_VIEWBOX, WORDMARK_VIEWBOX } from './LogoSymbol';
 
 const NS = 'http://www.w3.org/2000/svg';
-const CHROME = '.landing .mark, .pill';
+const CHROME = '.landing .mark, .pill, .sitebar';
 const MINI_SPOKES: [number, number, number, number][] = [
   [0, -8, 0, -40],
   [7.6, -2.5, 38, -12.4],

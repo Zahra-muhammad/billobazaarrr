@@ -8,3 +8,8 @@ next-env.d.ts
 
 # personal-use-only demo font (not used by the site; its licence does not allow redistribution)
 app/fonts/*PersonalUse*
+
+# the local database (data/billobazaar.db and its journal files): it holds people's names, emails
+# and password hashes. Only the database: the site's text, data/site.ts, belongs on GitHub.
+data/*.db
+data/*.db-*

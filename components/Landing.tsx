@@ -75,13 +75,13 @@ export default function Landing() {
         {/* at rest a peach pill + a dark arrow circle; on hover the pill wraps round the circle
             and the arrow slides up and out as a new one slides in */}
         <div className="hlinks reveal">
-          <a className="dpill" href={l.cta.href}>
+          <NavLink className="dpill" href={l.cta.href}>
             <span>{l.cta.label}</span>
             <i aria-hidden="true">
               <b>→</b>
               <b>→</b>
             </i>
-          </a>
+          </NavLink>
         </div>
       </div>
 

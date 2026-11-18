@@ -54,6 +54,36 @@ export const site = {
     contactLabels: { whatsapp: 'WhatsApp', email: 'E-mail' },
   },
 
+  // Accounts (components/AuthForm.tsx, app/account): sign up, log in, and the account page,
+  // which says "Coming soon" until there's something to show there.
+  auth: {
+    login: 'Log in',
+    signup: 'Sign up',
+    account: 'My account',
+    roles: { student: 'Student', manufacturer: 'Manufacturer', partner: 'Partner' },
+    signupPage: {
+      kicker: '( Join Billo Bazaar )',
+      heading: ['Make your', 'account.'],
+      submit: 'Create my account',
+      switchText: 'Already have an account?',
+      switchLink: 'Log in',
+    },
+    loginPage: {
+      kicker: '( Welcome back )',
+      heading: ['Log', 'in.'],
+      submit: 'Log in',
+      switchText: 'New here?',
+      switchLink: 'Make an account',
+    },
+    accountPage: {
+      kicker: '( Your account )',
+      hello: 'Hi',
+      heading: ['Coming', 'soon.'],
+      back: 'Back',
+      logout: 'Log out',
+    },
+  },
+
   hero: {
     title: 'From fashion student to',
     em: 'fashion brand.',
@@ -68,7 +98,7 @@ export const site = {
   landing: {
     videoSrc: '/hero2.mp4',
     lines: ['From fashion student,', 'to fashion brand.'],
-    cta: { label: 'Start with your sketch', href: mailto },
+    cta: { label: 'Start with your sketch', href: '/signup?as=student' }, // the way to sign up
     cards: {
       how: { label: 'How it works', href: '#how' },
       manufacturer: { label: 'Find your manufacturer', href: '#how', img: '/img/dupatta-tree.jpg', pos: '50% 40%' },
