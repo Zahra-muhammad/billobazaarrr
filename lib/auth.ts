@@ -71,16 +71,15 @@ const cookieOptions = (expires: Date) => ({
   expires,
 });
 
-async function startSession(userId: number | null) {
+async function startSession(userId: number) {
   const token = randomBytes(32).toString('base64url');
-  const isAdmin = userId === null;
-  const expires = new Date(Date.now() + (isAdmin ? ADMIN_HOURS * 3600e3 : USER_DAYS * 86400e3));
+  const expires = new Date(Date.now() + USER_DAYS * 86400e3);
   const c = await db();
   await c.execute({
-    sql: 'INSERT INTO sessions (token_hash, user_id, is_admin, expires_at) VALUES (?, ?, ?, ?)',
-    args: [hashToken(token), userId, isAdmin ? 1 : 0, expires.toISOString()],
+    sql: 'INSERT INTO sessions (token_hash, user_id, is_admin, expires_at) VALUES (?, ?, 0, ?)',
+    args: [hashToken(token), userId, expires.toISOString()],
   });
-  (await cookies()).set(isAdmin ? ADMIN_COOKIE : USER_COOKIE, token, cookieOptions(expires));
+  (await cookies()).set(USER_COOKIE, token, cookieOptions(expires));
 }
 
 async function endSession(cookieName: string) {
@@ -120,24 +119,78 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   return row ? { id: Number(row.id), name: String(row.name), email: String(row.email), role: row.role as Role } : null;
 }
 
-// ---------- the admin ----------
-/** The admin's username and password, if they have been set. */
+// ---------- admins ----------
+/**
+ * The main admin's username and password, from the site's settings. The main admin can always
+ * sign in (so the site can't be locked out) and is the only one who can add or remove admins.
+ */
 export function adminCredentials() {
   const username = process.env.ADMIN_USERNAME, password = process.env.ADMIN_PASSWORD;
   return username && password ? { username, password } : null;
 }
+/** a fingerprint of the main login: when ADMIN_USERNAME or ADMIN_PASSWORD changes, old sessions stop working */
+const ownerKey = () => {
+  const creds = adminCredentials();
+  return creds ? createHash('sha256').update(`${creds.username}
+${creds.password}`).digest('hex') : null;
+};
 
-export const startAdminSession = () => startSession(null);
-export const signOutAdmin = () => endSession(ADMIN_COOKIE);
+/** Who is signed in to the admin panel: the main admin (id null) or an added admin. */
+export type AdminUser = { id: number | null; name: string; email: string | null; isOwner: boolean };
 
-/** Is the admin signed in? Every admin page and action checks this itself. */
-export async function isAdmin() {
+/** Signs in the main admin (null) or an added admin (their id). */
+export async function startAdminSession(adminId: number | null) {
+  const token = randomBytes(32).toString('base64url');
+  const expires = new Date(Date.now() + ADMIN_HOURS * 3600e3);
+  const c = await db();
+  await c.execute({
+    sql: 'INSERT INTO admin_sessions (token_hash, admin_id, owner_key, expires_at) VALUES (?, ?, ?, ?)',
+    args: [hashToken(token), adminId, adminId === null ? ownerKey() : null, expires.toISOString()],
+  });
+  if (adminId !== null) await c.execute({ sql: "UPDATE admins SET last_login_at = datetime('now') WHERE id = ?", args: [adminId] });
+  (await cookies()).set(ADMIN_COOKIE, token, cookieOptions(expires));
+}
+
+export async function signOutAdmin() {
+  const store = await cookies();
+  const token = store.get(ADMIN_COOKIE)?.value;
+  if (token) {
+    const c = await db();
+    await c.execute({ sql: 'DELETE FROM admin_sessions WHERE token_hash = ?', args: [hashToken(token)] });
+  }
+  store.delete(ADMIN_COOKIE);
+}
+
+/** The signed-in admin, or null. Every admin page and action checks this itself. */
+export async function getAdmin(): Promise<AdminUser | null> {
   const token = (await cookies()).get(ADMIN_COOKIE)?.value;
-  if (!token) return false;
+  if (!token) return null;
   const c = await db();
   const r = await c.execute({
-    sql: 'SELECT 1 FROM sessions WHERE token_hash = ? AND is_admin = 1 AND expires_at > ?',
+    sql: `SELECT s.admin_id, s.owner_key, a.name, a.email FROM admin_sessions s LEFT JOIN admins a ON a.id = s.admin_id
+          WHERE s.token_hash = ? AND s.expires_at > ?`,
     args: [hashToken(token), new Date().toISOString()],
   });
-  return r.rows.length > 0;
+  const row = r.rows[0];
+  if (!row) return null;
+  if (row.admin_id === null) {
+    const creds = adminCredentials(), key = ownerKey();
+    if (!creds || !key || row.owner_key !== key) return null; // the main login has changed since
+    return { id: null, name: creds.username, email: null, isOwner: true };
+  }
+  if (row.name === null) return null; // that admin has been removed
+  return { id: Number(row.admin_id), name: String(row.name), email: String(row.email), isOwner: false };
 }
+
+export const isAdmin = async () => (await getAdmin()) !== null;
+
+/** After an admin changes their password: sign them out everywhere else. */
+export async function endOtherAdminSessions(adminId: number) {
+  const token = (await cookies()).get(ADMIN_COOKIE)?.value ?? '';
+  const c = await db();
+  await c.execute({ sql: 'DELETE FROM admin_sessions WHERE admin_id = ? AND token_hash != ?', args: [adminId, hashToken(token)] });
+}
+
+/** a stored hash to check against when no admin has that email, so the reply takes the same time */
+let dummy: Promise<string> | null = null;
+export const dummyPasswordHash = () => (dummy ??= hashPassword('not-a-real-password'));

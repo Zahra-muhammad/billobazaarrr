@@ -32,7 +32,7 @@ const SCHEMA = [
     at TEXT NOT NULL DEFAULT (datetime('now'))
   )`,
   `CREATE INDEX IF NOT EXISTS logins_at ON logins (at DESC)`,
-  // signed-in people and the signed-in admin: only a hash of each session token is stored
+  // signed-in people: only a hash of each session token is stored
   `CREATE TABLE IF NOT EXISTS sessions (
     token_hash TEXT PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -49,9 +49,32 @@ const SCHEMA = [
     delivered INTEGER NOT NULL DEFAULT 0,
     status TEXT NOT NULL CHECK (status IN ('sent', 'partly sent', 'not sent', 'saved')),
     note TEXT,
+    sent_by TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   )`,
+  // admins added in the admin panel (they sign in with their email). The main admin isn't here:
+  // that login comes from the site's settings (ADMIN_USERNAME / ADMIN_PASSWORD).
+  `CREATE TABLE IF NOT EXISTS admins (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    password_hash TEXT NOT NULL,
+    added_by TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    last_login_at TEXT
+  )`,
+  // signed-in admins. admin_id is empty for the main admin, whose session also keeps a
+  // fingerprint of the main login, so changing ADMIN_PASSWORD signs out the old sessions.
+  `CREATE TABLE IF NOT EXISTS admin_sessions (
+    token_hash TEXT PRIMARY KEY,
+    admin_id INTEGER REFERENCES admins(id) ON DELETE CASCADE,
+    owner_key TEXT,
+    expires_at TEXT NOT NULL
+  )`,
 ];
+
+/** Changes to tables made before these columns existed (each runs once; "already there" is fine). */
+const UPGRADES = ['ALTER TABLE emails ADD COLUMN sent_by TEXT'];
 
 let client: Client | null = null;
 let ready: Promise<void> | null = null;
@@ -79,6 +102,9 @@ export async function db(): Promise<Client> {
     ready = (async () => {
       await c.execute('PRAGMA foreign_keys = ON');
       for (const sql of SCHEMA) await c.execute(sql);
+      for (const sql of UPGRADES) {
+        try { await c.execute(sql); } catch (e) { if (!/duplicate column/i.test(String(e))) throw e; }
+      }
     })().catch((e) => { ready = null; throw e; });
   }
   await ready;

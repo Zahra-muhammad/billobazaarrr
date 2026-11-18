@@ -3,7 +3,7 @@
 import { startTransition, useActionState, type FormEvent } from 'react';
 import { adminSignIn, type AdminSignInState } from '@/app/actions/admin';
 
-/** The admin sign-in card: username and password from the site's settings. */
+/** The admin sign-in card: the main admin's username, or an added admin's email, and password. */
 export default function AdminSignInForm({ configured }: { configured: boolean }) {
   const [state, action, pending] = useActionState<AdminSignInState, FormData>(adminSignIn, undefined);
   // submitted by hand, so a wrong password doesn't also wipe the username (React resets <form action> forms)
@@ -20,11 +20,11 @@ export default function AdminSignInForm({ configured }: { configured: boolean })
         <p className="adm-muted">Only for the site’s admin.</p>
         {!configured && (
           <p className="adm-warn" role="status">
-            The admin login isn’t set up yet. Add <code>ADMIN_USERNAME</code> and <code>ADMIN_PASSWORD</code> to the site’s settings (<code>.env.local</code> on this computer).
+            The main admin login isn’t set up yet. Add <code>ADMIN_USERNAME</code> and <code>ADMIN_PASSWORD</code> to the site’s settings (on Vercel: Settings → Environment Variables, then redeploy; on this computer: <code>.env.local</code>).
           </p>
         )}
         <label className="adm-fld">
-          <span>Username</span>
+          <span>Username or email</span>
           <input name="username" autoComplete="username" required />
         </label>
         <label className="adm-fld">
@@ -32,7 +32,7 @@ export default function AdminSignInForm({ configured }: { configured: boolean })
           <input name="password" type="password" autoComplete="current-password" required />
         </label>
         {state?.error && <p className="adm-err" role="alert">{state.error}</p>}
-        <button type="submit" className="adm-btn" disabled={pending || !configured}>{pending ? 'Signing in…' : 'Sign in'}</button>
+        <button type="submit" className="adm-btn" disabled={pending}>{pending ? 'Signing in…' : 'Sign in'}</button>
         <a className="adm-back" href="/">← Back to the site</a>
       </form>
     </div>

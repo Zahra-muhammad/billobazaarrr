@@ -1,15 +1,19 @@
 'use client';
 
-import { useActionState, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { adminSignOut, sendEmail, type SendState } from '@/app/actions/admin';
+import { startTransition, useActionState, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { addAdmin, adminSignOut, changeAdminPassword, removeAdmin, sendEmail, type SendState, type TeamState } from '@/app/actions/admin';
 
 type Role = 'student' | 'manufacturer' | 'partner';
 export type AdminData = {
   people: { id: number; name: string; email: string; role: Role; city: string; joined: string; lastSeen: string | null; logins: number }[];
   activity: { kind: 'signup' | 'login'; at: string; name: string; role: Role }[];
-  emails: { audience: string; subject: string; status: string; recipients: number; delivered: number; note: string; at: string }[];
+  emails: { audience: string; subject: string; status: string; recipients: number; delivered: number; note: string; by: string; at: string }[];
   activeThisWeek: number;
   mail: { on: boolean; via: string };
+  /** who is signed in: the main admin (from the site's settings) or an admin added in the panel */
+  me: { name: string; isOwner: boolean };
+  ownerName: string;
+  admins: { id: number; name: string; email: string; addedBy: string; added: string; lastSeen: string | null }[];
 };
 
 const ROLE_LABEL: Record<Role, string> = { student: 'Student', manufacturer: 'Manufacturer', partner: 'Partner' };
@@ -87,6 +91,7 @@ export default function AdminDashboard({ data }: { data: AdminData }) {
       <header className="adm-top">
         <p className="adm-brand">Billo Bazaar · Admin</p>
         <nav>
+          <span className="adm-me">Signed in as <b>{data.me.name}</b>{data.me.isOwner ? ' (main admin)' : ''}</span>
           <a href="/">View site</a>
           <form action={adminSignOut}><button type="submit">Sign out</button></form>
         </nav>
@@ -105,6 +110,7 @@ export default function AdminDashboard({ data }: { data: AdminData }) {
       </section>
 
       <div className="adm-grid">
+        <div className="adm-main">
         {/* everyone who has signed up */}
         <section className="adm-panel adm-people" aria-labelledby="admPeople">
           <div className="adm-head">
@@ -146,6 +152,9 @@ export default function AdminDashboard({ data }: { data: AdminData }) {
             </div>
           )}
         </section>
+
+        <AdminTeam data={data} now={now} />
+        </div>
 
         <div className="adm-side">
           {/* write to a group, or the people ticked in the list */}
@@ -202,7 +211,7 @@ export default function AdminDashboard({ data }: { data: AdminData }) {
               <ul className="adm-list">
                 {data.emails.map((m, i) => (
                   <li key={i} title={m.note || undefined}>
-                    <span><b>{m.subject}</b> to {m.audience} · <span className={`adm-status ${m.status.replace(' ', '-')}`}>{m.status}</span></span>
+                    <span><b>{m.subject}</b> to {m.audience}{m.by ? `, by ${m.by}` : ''} · <span className={`adm-status ${m.status.replace(' ', '-')}`}>{m.status}</span></span>
                     <When ts={m.at} now={now} />
                   </li>
                 ))}
@@ -212,5 +221,98 @@ export default function AdminDashboard({ data }: { data: AdminData }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/** a strong random password to give a new admin (they can change it after signing in) */
+function makePassword() {
+  const abc = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const bytes = new Uint32Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (n) => abc[n % abc.length]).join('').replace(/(.{4})(?!$)/g, '$1-');
+}
+
+/**
+ * Who can sign in to this panel. The main admin (the login in the site's settings) adds and
+ * removes admins; an added admin signs in with their email and can change their own password.
+ */
+function AdminTeam({ data, now }: { data: AdminData; now: number }) {
+  const owner = data.me.isOwner;
+  const [addState, addAction, adding] = useActionState<TeamState, FormData>(addAdmin, undefined);
+  const [pwState, pwAction, changing] = useActionState<TeamState, FormData>(changeAdminPassword, undefined);
+  // the new admin's details are kept here, so a mistake doesn't wipe them; cleared once added
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [lastAdd, setLastAdd] = useState<TeamState>(undefined);
+  if (addState !== lastAdd) {
+    setLastAdd(addState);
+    if (addState?.ok) { setName(''); setEmail(''); }
+  }
+  // submitted by hand: React's own form reset would wipe what was typed after every try
+  const submit = (action: (fd: FormData) => void) => (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    startTransition(() => action(fd));
+  };
+  const confirmRemove = (who: string) => (e: FormEvent<HTMLFormElement>) => {
+    if (!window.confirm(`Remove ${who} as an admin? They'll be signed out straight away.`)) e.preventDefault();
+  };
+
+  return (
+    <section className="adm-panel adm-team" aria-labelledby="admTeam">
+      <h2 id="admTeam">Admins</h2>
+      <ul className="adm-list">
+        <li>
+          <span><b>{data.ownerName || 'Main admin'}</b> <span className="adm-tag">Main admin</span></span>
+          <span className="adm-quiet">login from the site’s settings</span>
+        </li>
+        {data.admins.map((a) => (
+          <li key={a.id}>
+            <span><b>{a.name}</b> <span className="adm-quiet">{a.email}</span></span>
+            <span className="adm-row-end">
+              <span className="adm-quiet">{a.lastSeen ? <>signed in <When ts={a.lastSeen} now={now} /></> : 'hasn’t signed in yet'}</span>
+              {owner && (
+                <form action={removeAdmin} onSubmit={confirmRemove(a.name)}>
+                  <input type="hidden" name="id" value={a.id} />
+                  <button type="submit" className="adm-linkbtn">Remove</button>
+                </form>
+              )}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {owner ? (
+        <form onSubmit={submit(addAction)} className="adm-compose adm-addadmin" noValidate>
+          <h3>Add an admin</h3>
+          <p className="adm-hint">They sign in at <code>/admin/signin</code> with their email and this password, and can see everyone and send emails. Only you can add or remove admins.</p>
+          <div className="adm-two">
+            <label className="adm-fld"><span>Name</span><input name="name" value={name} onChange={(e) => setName(e.target.value)} required maxLength={80} /></label>
+            <label className="adm-fld"><span>Email</span><input name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={254} /></label>
+          </div>
+          <label className="adm-fld">
+            <span>Password (at least 10 characters)</span>
+            <span className="adm-pw">
+              <input name="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={10} maxLength={200} autoComplete="new-password" spellCheck={false} />
+              <button type="button" className="adm-linkbtn" onClick={() => setPassword(makePassword())}>Make a password</button>
+            </span>
+          </label>
+          {addState && <p className={addState.ok ? 'adm-ok' : 'adm-err'} role="status">{addState.message}</p>}
+          <button type="submit" className="adm-btn" disabled={adding}>{adding ? 'Adding…' : 'Add admin'}</button>
+        </form>
+      ) : (
+        <form onSubmit={submit(pwAction)} className="adm-compose adm-addadmin" noValidate>
+          <h3>Change my password</h3>
+          <label className="adm-fld"><span>Current password</span><input name="current" type="password" autoComplete="current-password" required /></label>
+          <div className="adm-two">
+            <label className="adm-fld"><span>New password</span><input name="next" type="password" autoComplete="new-password" required minLength={10} /></label>
+            <label className="adm-fld"><span>New password again</span><input name="again" type="password" autoComplete="new-password" required minLength={10} /></label>
+          </div>
+          {pwState && <p className={pwState.ok ? 'adm-ok' : 'adm-err'} role="status">{pwState.message}</p>}
+          <button type="submit" className="adm-btn" disabled={changing}>{changing ? 'Saving…' : 'Change password'}</button>
+        </form>
+      )}
+    </section>
   );
 }

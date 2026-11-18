@@ -761,3 +761,18 @@ button.adm-stat { cursor: pointer; transition: border-color 0.4s var(--ease-crea
 .adm-status.partly-sent, .adm-status.not-sent { color: #A3263A; }
 @media (max-width: 1100px) { .adm-grid { grid-template-columns: minmax(0, 1fr); } .adm-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .adm-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .adm-search { min-width: 0; width: 100%; } }
+/* the admins section (several admins; components/AdminDashboard.tsx) */
+.adm-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.adm-me { font-size: 14px; color: rgba(59, 10, 10, 0.7); }
+.adm-me b { color: #3B0A0A; font-weight: 600; }
+.adm-tag { display: inline-block; padding: 4px 8px; border-radius: 999px; font: 600 11px/1 var(--body); background: #3B0A0A; color: #EFEEEA; }
+.adm-quiet { font-size: 13px; color: rgba(59, 10, 10, 0.62); }
+.adm-row-end { display: inline-flex; align-items: center; gap: 14px; white-space: nowrap; }
+.adm-row-end form { display: inline; }
+.adm-linkbtn { font: 600 13px/1 var(--body); color: #8C1C13; background: none; border: 0; padding: 4px 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.adm-team h3 { margin: 0; font: 700 15px/1.2 var(--body); text-transform: none; letter-spacing: 0; color: #3B0A0A; }
+.adm-addadmin { margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(59, 10, 10, 0.1); }
+.adm-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.adm-pw { display: flex; align-items: center; gap: 12px; }
+.adm-pw input { flex: 1 1 auto; min-width: 0; font-family: ui-monospace, Menlo, Consolas, monospace; }
+@media (max-width: 600px) { .adm-two { grid-template-columns: minmax(0, 1fr); } .adm-pw { flex-direction: column; align-items: stretch; } .adm-list li { flex-wrap: wrap; } .adm-me { display: none; } }
