@@ -6,7 +6,6 @@ import BigMenu from './BigMenu';
 import MenuPill from './MenuPill';
 import { usePathname } from 'next/navigation';
 import { usePageTransition } from './PageTransition';
-import { createThreadArt } from './threadArt';
 import { scrollToId } from '@/lib/scroll';
 
 /** Narrow or short screens: the menu fills the whole screen instead of an oval. Keep in sync with globals.css. */
@@ -22,8 +21,8 @@ export default function Menu() {
   const labelRef = useRef<HTMLSpanElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
-  const artLRef = useRef<HTMLCanvasElement>(null);
-  const artRRef = useRef<HTMLCanvasElement>(null);
+  const artLRef = useRef<SVGSVGElement>(null);
+  const artRRef = useRef<SVGSVGElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
   const navigateRef = useRef<(href: string) => void>(() => {});
   const goRef = useRef(go);
@@ -65,15 +64,19 @@ export default function Menu() {
     const setTheme = () => {
       if (themeMeta) themeMeta.content = isOpen && isCompact() ? MENU_BG : themeDefault;
     };
-    // the flowers: living thread lines (they grow up, sway, and bend away from the pointer)
-    const arts = [createThreadArt(artL, 11, false), createThreadArt(artR, 29, true)];
-    const growth = { v: 1 };
-    const applyGrowth = () => arts.forEach((a) => a.setGrow(growth.v));
-    const paintArt = () => arts.forEach((a) => a.resize());
-    const stopArt = () => {
-      gsap.killTweensOf(growth);
-      arts.forEach((a) => a.stop());
+    // the line art at the sides: every line sews itself in when the menu opens (pathLength 1,
+    // stroke-dashoffset 1 -> 0); the stitched lines fade in
+    const artLines = [artL, artR].flatMap((svg) => Array.from(svg.querySelectorAll<SVGElement>('.d')));
+    const artStitches = [artL, artR].flatMap((svg) => Array.from(svg.querySelectorAll<SVGElement>('.st')));
+    const sewArt = () => {
+      gsap.fromTo(artLines, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.3, stagger: 0.007, delay: 0.35, ease: 'power2.inOut' });
+      gsap.fromTo(artStitches, { opacity: 0 }, { opacity: 1, duration: 1, delay: 0.9, ease: 'sine.inOut' });
     };
+    const showArt = () => {
+      gsap.set(artLines, { strokeDashoffset: 0 });
+      gsap.set(artStitches, { opacity: 1 });
+    };
+    const stopArt = () => gsap.killTweensOf([...artLines, ...artStitches]);
     // the page behind the menu can't be tabbed into or clicked while it is open
     const setInert = (on: boolean) => {
       document.querySelectorAll('main, footer').forEach((el) => el.toggleAttribute('inert', on));
@@ -103,21 +106,15 @@ export default function Menu() {
       if (next) {
         menu.hidden = false;
         if (calm) {
-          paintArt();
-          arts.forEach((a) => a.renderStill());
+          showArt();
           menu.style.clipPath = openClip();
           return;
         }
         // same order as the reference: the oval starts growing, then the art is drawn
         bmTween = gsap.fromTo(menu, { clipPath: pillClip() }, { clipPath: openClip(), duration: 1.1, ease: 'expo.inOut' });
-        growth.v = 0;
-        paintArt();
-        applyGrowth();
-        arts.forEach((a) => a.start());
+        sewArt();
         gsap.fromTo(spans, { yPercent: 110 }, { yPercent: 0, duration: 1.2, stagger: 0.07, delay: 0.45, ease: 'expo.out' });
         gsap.fromTo(contact, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 1.1, delay: 0.8, ease: 'expo.out' });
-        // the threads grow up from the bottom
-        gsap.to(growth, { v: 1, duration: 1.6, delay: 0.3, ease: 'power2.out', onUpdate: applyGrowth });
       } else {
         resetLinks();
         if (menu.contains(document.activeElement)) btn.focus({ preventScroll: true });
@@ -158,7 +155,7 @@ export default function Menu() {
       gsap.set([artL, artR], { clearProps: 'opacity' }); // back to the CSS opacity (0.4 on phones)
     }
 
-    // A menu link was clicked: the menu fills the screen with its cream, the names and the flowers
+    // A menu link was clicked: the menu fills the screen with its cream, the names and the line art
     // fade away, and the page transition draws its maroon wheel on the plain cream.
     function navigate(href: string) {
       if (navigating || !isOpen || !menu) return;
@@ -215,7 +212,6 @@ export default function Menu() {
     const onResize = () => {
       if (!isOpen || navigating) return;
       menu.style.clipPath = openClip();
-      paintArt();
       setTheme();
     };
     btn.addEventListener('click', onBtn);
@@ -292,8 +288,7 @@ export default function Menu() {
       unmagnet();
       unhover();
       bmTween?.kill();
-      gsap.killTweensOf(growth);
-      arts.forEach((a) => a.destroy());
+      stopArt();
       if (isOpen) {
         setScrim(false, true);
         root.style.overflow = '';

@@ -85,7 +85,8 @@ const SCISSORS: P[] = [
   { d: 'M494 792 L485 765 L444 684 L478 768 Z' },
 ];
 
-function Side() {
+/** One side panel of the line art (also drawn in the menu, components/BigMenu.tsx). */
+export function OrnamentSide() {
   return (
     <>
       {line({ d: STEM }, 'stem')}
@@ -125,8 +126,8 @@ function Side() {
 export default function IntroOrnament(): ReactNode {
   return (
     <div className="orn" aria-hidden="true">
-      <svg className="orn-side l" viewBox="0 0 560 900" preserveAspectRatio="xMinYMid meet"><Side /></svg>
-      <svg className="orn-side r" viewBox="0 0 560 900" preserveAspectRatio="xMinYMid meet"><Side /></svg>
+      <svg className="orn-side l" viewBox="0 0 560 900" preserveAspectRatio="xMinYMid meet"><OrnamentSide /></svg>
+      <svg className="orn-side r" viewBox="0 0 560 900" preserveAspectRatio="xMinYMid meet"><OrnamentSide /></svg>
       {/* a clothes hanger, top centre */}
       <svg className="orn-top" viewBox="0 0 200 92">
         <path className="d" pathLength={1} d="M100 30 C100 22 98 16 104 12 C110 8 114 2 108 -2 C102 -6 94 -2 96 6" transform="translate(0 6)" />

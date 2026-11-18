@@ -1,11 +1,12 @@
 import type { MouseEvent, Ref } from 'react';
 import { site } from '@/data/site';
+import { OrnamentSide } from './IntroOrnament';
 
 type Props = {
   menuRef: Ref<HTMLDivElement>;
   scrimRef: Ref<HTMLDivElement>;
-  artLRef: Ref<HTMLCanvasElement>;
-  artRRef: Ref<HTMLCanvasElement>;
+  artLRef: Ref<SVGSVGElement>;
+  artRRef: Ref<SVGSVGElement>;
   contactRef: Ref<HTMLDivElement>;
   /** the current route, marked for screen readers with aria-current */
   current: string;
@@ -25,8 +26,9 @@ export default function BigMenu({ menuRef, scrimRef, artLRef, artRRef, contactRe
     <>
       <div className="bmscrim" id="bmScrim" ref={scrimRef} aria-hidden="true" />
       <div className="bigmenu" id="bigmenu" ref={menuRef} hidden data-lenis-prevent>
-        <canvas className="bmart bmart-l" ref={artLRef} aria-hidden="true" />
-        <canvas className="bmart bmart-r" ref={artRRef} aria-hidden="true" />
+        {/* the line art from "Your sketch, made real.", in maroon on the cream, one side mirrored */}
+        <svg className="bmart bmart-l" ref={artLRef} viewBox="0 0 560 900" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><OrnamentSide /></svg>
+        <svg className="bmart bmart-r" ref={artRRef} viewBox="0 0 560 900" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><OrnamentSide /></svg>
         <nav className="nlinks" aria-label="Main">
           {links.map((l) => (
             <a key={l.label} href={l.href} aria-current={l.href === current ? 'page' : undefined} onClick={(e) => onLink(e, l.href)}>

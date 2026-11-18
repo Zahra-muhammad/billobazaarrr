@@ -84,9 +84,13 @@ section { position: relative; }
 .bmscrim.on { opacity: 1; pointer-events: auto; }
 .bigmenu { position: fixed; inset: 0; z-index: 19; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(28px, 5vh, 52px); padding: clamp(60px, 16vh, 170px) max(20px, env(safe-area-inset-right, 0px)) clamp(60px, 16vh, 170px) max(20px, env(safe-area-inset-left, 0px)); box-sizing: border-box; background: var(--cream); overflow: hidden; }
 .bigmenu[hidden] { display: none; }
-.bmart { position: absolute; top: 0; bottom: 0; width: min(24vw, 360px); height: 100%; pointer-events: none; }
+/* the line art at the sides (the same drawing as behind "Your sketch, made real."), maroon on cream */
+.bmart { position: absolute; top: 0; bottom: 0; width: min(26vw, 380px); height: 100%; pointer-events: none; overflow: visible; }
 .bmart-l { left: 7vw; }
 .bmart-r { right: 7vw; transform: scaleX(-1); }
+.bmart :is(path, circle, ellipse) { fill: none; stroke: rgba(59, 10, 10, 0.42); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.bmart .d { stroke-dasharray: 1 1; }
+.bmart .st { stroke-dasharray: 6 7; }
 .nlinks { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; }
 .nlinks a { display: block; overflow: hidden; color: var(--maroon); text-decoration: none; font: 800 clamp(36px, 4.4vw, 64px)/1 var(--display); font-variation-settings: "wdth" 62; letter-spacing: -0.005em; text-transform: uppercase; padding: 1px 0; transition: color 0.5s var(--ease-cream); }
 .nlinks a span { display: inline-block; }
@@ -106,15 +110,23 @@ section { position: relative; }
     padding-bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 88px));
   }
 }
-/* phones: bigger, thumb-sized links; the flower art moves to the edges, behind the text */
+/* phones: bigger, thumb-sized links; the two arches stand in the free space under the contact
+   details, above the close button */
 @media (max-width: 760px) {
   .nlinks a { font-size: clamp(30px, 8.4vw, 42px); padding-block: 4px; }
-  .bmart { width: 18vw; opacity: 0.4; }
-  .bmart-l { left: 0; }
-  .bmart-r { right: 0; }
+  .bmart { top: auto; bottom: max(70px, calc(env(safe-area-inset-bottom, 0px) + 62px)); height: 28%; width: 46vw; opacity: 0.55; }
+  .bmart :is(path, circle, ellipse) { stroke-width: 3.2; }
+  .bmart-l { left: 2vw; }
+  .bmart-r { right: 2vw; }
 }
-/* short screens (phone on its side, squashed window): tighter so all the links fit */
+/* shorter phones: smaller arches, so they stay clear of the contact details */
+@media (max-width: 760px) and (max-height: 720px) { .bmart { height: 21%; } }
+/* short screens (phone on its side, squashed window): tighter so all the links fit, and the art
+   pulled out to the edges, clear of the contact details */
 @media (max-height: 560px) {
+  .bmart { width: 24vw; }
+  .bmart-l { left: 3vw; }
+  .bmart-r { right: 3vw; }
   .bigmenu { gap: 14px; padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 80px)); padding-bottom: max(88px, calc(env(safe-area-inset-bottom, 0px) + 80px)); }
   .nlinks a { font-size: clamp(22px, 6.4vh, 34px); padding-block: 1px; }
 }
