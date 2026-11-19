@@ -12,6 +12,7 @@ import { sendToPeople, type Recipient } from '@/lib/mail';
 export type AdminSignInState = { error?: string } | undefined;
 export type SendState = { ok: boolean; message: string } | undefined;
 export type TeamState = { ok: boolean; message: string } | undefined;
+export type DeleteState = { ok: boolean; message: string } | undefined;
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_ADMIN_PASSWORD = 10;
@@ -75,6 +76,27 @@ export async function addAdmin(_prev: TeamState, fd: FormData): Promise<TeamStat
   });
   revalidatePath('/admin');
   return { ok: true, message: `${name} is now an admin. Send them the sign-in page (/admin/signin), their email and this password privately.` };
+}
+
+/**
+ * The main admin deletes people (the ones ticked in the list): their account, their sessions
+ * (so they're signed out) and their sign-in history, all at once. This can't be undone.
+ */
+export async function deletePeople(_prev: DeleteState, fd: FormData): Promise<DeleteState> {
+  const me = await getAdmin();
+  if (!me) return { ok: false, message: 'Your admin session has ended. Please sign in again.' };
+  if (!me.isOwner) return { ok: false, message: 'Only the main admin can delete people.' };
+  const ids = [...new Set(fd.getAll('ids').map(Number).filter((n) => Number.isInteger(n) && n > 0))].slice(0, 5000);
+  if (!ids.length) return { ok: false, message: 'Tick the people to delete first.' };
+  const q = ids.map(() => '?').join(',');
+  const c = await db();
+  await c.batch([
+    { sql: `DELETE FROM logins WHERE user_id IN (${q})`, args: ids },
+    { sql: `DELETE FROM sessions WHERE user_id IN (${q})`, args: ids },
+    { sql: `DELETE FROM users WHERE id IN (${q})`, args: ids },
+  ], 'write');
+  revalidatePath('/admin');
+  return { ok: true, message: `Deleted ${ids.length} ${ids.length === 1 ? 'person' : 'people'}.` };
 }
 
 /** The main admin removes an admin: they're signed out at once. */

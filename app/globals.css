@@ -776,3 +776,10 @@ button.adm-stat { cursor: pointer; transition: border-color 0.4s var(--ease-crea
 .adm-pw { display: flex; align-items: center; gap: 12px; }
 .adm-pw input { flex: 1 1 auto; min-width: 0; font-family: ui-monospace, Menlo, Consolas, monospace; }
 @media (max-width: 600px) { .adm-two { grid-template-columns: minmax(0, 1fr); } .adm-pw { flex-direction: column; align-items: stretch; } .adm-list li { flex-wrap: wrap; } .adm-me { display: none; } }
+/* deleting people: the bar that appears when people are ticked (main admin only) */
+.adm-selbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: -2px 0 12px; padding: 10px 14px; border-radius: 12px; background: rgba(233, 180, 194, 0.22); font-size: 14px; }
+.adm-selbar form { margin-left: auto; }
+.adm-danger { font: 600 13px/1 var(--body); color: #FFFFFF; background: #A3263A; border: 0; border-radius: 999px; padding: 10px 16px; cursor: pointer; transition: background 0.4s var(--ease-cream); }
+.adm-danger[disabled] { opacity: 0.6; cursor: progress; }
+@media (hover: hover) { .adm-danger:not([disabled]):hover { background: #7E1A2B; } }
+.adm-delmsg { margin: -4px 0 12px; font-size: 14px; }

@@ -1,7 +1,7 @@
 'use client';
 
 import { startTransition, useActionState, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { addAdmin, adminSignOut, changeAdminPassword, removeAdmin, sendEmail, type SendState, type TeamState } from '@/app/actions/admin';
+import { addAdmin, adminSignOut, changeAdminPassword, deletePeople, removeAdmin, sendEmail, type DeleteState, type SendState, type TeamState } from '@/app/actions/admin';
 
 type Role = 'student' | 'manufacturer' | 'partner';
 export type AdminData = {
@@ -70,6 +70,19 @@ export default function AdminDashboard({ data }: { data: AdminData }) {
     pick(n);
   };
 
+  // deleting the people ticked in the list (main admin only); afterwards nobody is ticked
+  const [delState, delAction, deleting] = useActionState<DeleteState, FormData>(deletePeople, undefined);
+  const [lastDel, setLastDel] = useState<DeleteState>(undefined);
+  if (delState !== lastDel) {
+    setLastDel(delState);
+    if (delState?.ok) { setPicked(new Set()); setAudience('everyone'); }
+  }
+  const confirmDelete = (e: FormEvent<HTMLFormElement>) => {
+    const names = data.people.filter((p) => picked.has(p.id)).map((p) => p.name);
+    const who = names.length <= 3 ? names.join(', ') : `${names.slice(0, 3).join(', ')} and ${names.length - 3} more`;
+    if (!window.confirm(`Delete ${who}?\n\nTheir account and sign-in history are removed for good. This can't be undone.`)) e.preventDefault();
+  };
+
   // the subject and message are kept here, so a failed send never loses what was written;
   // they clear only once an email has gone out
   const [subject, setSubject] = useState('');
@@ -124,6 +137,19 @@ export default function AdminDashboard({ data }: { data: AdminData }) {
             </div>
             <input className="adm-search" type="search" placeholder="Search name, email or city" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search people" />
           </div>
+          {picked.size > 0 && (
+            <div className="adm-selbar">
+              <span><b>{picked.size}</b> ticked</span>
+              <button type="button" className="adm-linkbtn" onClick={() => pick(new Set())}>Clear</button>
+              {data.me.isOwner && (
+                <form action={delAction} onSubmit={confirmDelete}>
+                  {[...picked].map((id) => <input key={id} type="hidden" name="ids" value={id} />)}
+                  <button type="submit" className="adm-danger" disabled={deleting}>{deleting ? 'Deleting…' : `Delete ${picked.size === 1 ? 'this person' : `these ${picked.size}`}`}</button>
+                </form>
+              )}
+            </div>
+          )}
+          {delState && <p className={delState.ok ? 'adm-ok adm-delmsg' : 'adm-err adm-delmsg'} role="status">{delState.message}</p>}
           {shown.length === 0 ? (
             <p className="adm-empty">{data.people.length ? 'No one matches that.' : 'No one has signed up yet. When people make an account, they’ll appear here.'}</p>
           ) : (
