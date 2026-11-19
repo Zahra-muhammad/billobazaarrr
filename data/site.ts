@@ -108,7 +108,7 @@ export const site = {
     // each opens the join page with that option already picked in its form
     row: [
       { label: 'For students', text: 'Get your designs printed and sold.', img: '/img/tiled-floor.jpg', pos: '50% 35%', href: '/join#students' },
-      { label: 'For manufacturers', text: 'Print and embroider new student designs.', img: '/img/tailor.jpg', pos: '50% 85%', href: '/join#manufacturers' },
+      { label: 'For manufacturers', text: 'Print and embroider new student designs.', img: '/img/embroidery.jpg', pos: '50% 50%', href: '/join#manufacturers' },
       { label: 'For partners', text: 'Stores, investors and exhibitions.', img: '/img/sari.jpg', pos: '50% 70%', href: '/join#partners' },
     ],
   },
@@ -139,8 +139,8 @@ export const site = {
       kicker: '( How we work )',
       heading: ['Four', 'promises.'],
       items: [
-        { title: 'Your design, your name.', text: 'The prints and the story behind them belong to the student who drew them, and their name goes on every design we sell.', img: '/img/sketches.jpg', pos: '50% 50%' },
-        { title: 'Made here.', text: 'Every strike-off and every first run is printed, woven or embroidered by manufacturers in Pakistan.', img: '/img/tailor.jpg', pos: '50% 85%' },
+        { title: 'Your design, your name.', text: 'The prints and the story behind them belong to the student who drew them, and their name goes on every design we sell.', img: '/img/weaving.jpg', pos: '50% 45%' },
+        { title: 'Made here.', text: 'Every strike-off and every first run is printed, woven or embroidered by manufacturers in Pakistan.', img: '/img/embroidery.jpg', pos: '50% 50%' },
         { title: 'Nothing without a yes.', text: 'A strike-off is just a test until the designer approves it. Nothing is printed in quantity before that.', img: '/img/handshake.jpg', pos: '50% 50%' },
         { title: 'Worn, not filed.', text: 'Designs belong on cloth that people stitch and wear, not in a portfolio. Everything we do is about getting the work bought.', img: '/img/models-arch.jpg', pos: '50% 30%' },
       ],
@@ -196,14 +196,14 @@ export const site = {
         tags: ['Prints', 'Embroidery', 'Colourways'],
         title: { before: 'You', em: 'design.', after: '' },
         text: 'Send us your artwork: the print, where the embroidery sits and the colourways. Tell us the cloth you have in mind (lawn, cambric, chiffon or khaddar) and who it is for.',
-        photo: { src: '/img/sketches.jpg', alt: 'Fashion sketches spread across a table', pos: '50% 50%', note: 'fashion sketches' },
+        photo: { src: '/img/weaving.jpg', alt: 'A hand weaving a patterned kilim on a loom', pos: '50% 45%', note: 'weaving on a loom' },
       },
       {
         item: 'We find your manufacturer.',
         tags: ['Printing', 'Embroidery', 'Small runs'],
         title: { before: 'We find your', em: 'manufacturer.', after: '' },
         text: 'We match you with a manufacturer who works with your cloth and your technique (digital, screen or block printing, or embroidery) and can do a small first run of your design.',
-        photo: { src: '/img/tailor.jpg', alt: 'A tailor sewing at a machine', pos: '50% 88%', note: 'a tailor at a sewing machine' },
+        photo: { src: '/img/embroidery.jpg', alt: 'Two pairs of hands embroidering red cross-stitch on white cloth', pos: '50% 50%', note: 'hand embroidery' },
       },
       {
         item: 'You get a strike-off.',
