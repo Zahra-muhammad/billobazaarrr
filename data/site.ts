@@ -159,8 +159,8 @@ export const site = {
     },
   },
 
-  // The join page (/join, components/Join.tsx): three photo panels to pick your way in, then a
-  // fill-in-the-blanks form. The form isn't connected to a form service yet (see `form.notSent`).
+  // The join page (/join, components/Join.tsx): three photo panels to pick your way in (each opens
+  // sign up with that choice picked), then "Say salaam." with Sign up and Log in.
   join: {
     title: 'Join us',
     videoSrc: '/hero3.mp4', // behind the first screen, dark and maroon-washed (see .jn-bg)
@@ -175,13 +175,10 @@ export const site = {
     form: {
       kicker: '( Get in touch )',
       heading: ['Say', 'salaam.'],
-      // the dropdown in "I'm a ___", and the hint in the "A little about me" box for each choice
-      options: { student: 'fashion student', manufacturer: 'manufacturer', partner: 'partner' },
-      hints: { student: 'the label I want to build', manufacturer: 'what I make and the size of runs I can take on', partner: 'who I am and what I have in mind' },
-      placeholders: { name: 'your name', city: 'your city', contact: 'e-mail or WhatsApp' },
-      about: 'A little about me:',
-      send: 'Send',
-      notSent: "This form isn't connected yet. For now, send it to",
+      lead: 'Make your free account to get started, whether you’re a fashion student, a manufacturer or a partner.',
+      signup: 'Sign up',
+      loginText: 'Already have an account?',
+      login: 'Log in',
     },
   },
 

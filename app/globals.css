@@ -783,3 +783,13 @@ button.adm-stat { cursor: pointer; transition: border-color 0.4s var(--ease-crea
 .adm-danger[disabled] { opacity: 0.6; cursor: progress; }
 @media (hover: hover) { .adm-danger:not([disabled]):hover { background: #7E1A2B; } }
 .adm-delmsg { margin: -4px 0 12px; font-size: 14px; }
+/* the join page's way in (components/Join.tsx): Sign up and Log in under "Say salaam." */
+.jn-go-in { display: flex; flex-direction: column; justify-content: flex-end; gap: clamp(26px, 3vw, 40px); }
+.jn-go-lead { margin: 0; max-width: 26ch; font: 300 clamp(26px, 2.9vw, 50px)/1.3 var(--body); letter-spacing: -0.02em; color: #EBCDB8; }
+.jn-go-row { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 30px; }
+.jn-go .dpill::before { background: #EBCDB8; }
+.jn-go .dpill i { background: #3A1512; }
+.jn-go-login { margin: 0; font: 400 16px/1.5 var(--body); color: rgba(235, 205, 184, 0.7); }
+.jn-go-login a { color: #EBCDB8; text-underline-offset: 3px; transition: color 0.5s var(--ease-cream); }
+@media (hover: hover) { .jn-go-login a:hover { color: var(--blush); } }
+

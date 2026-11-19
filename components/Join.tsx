@@ -1,16 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap, useGSAP, prefersReducedMotion } from '@/lib/gsap';
 import { registerEntrance } from '@/lib/hero';
-import { scrollToId } from '@/lib/scroll';
 import { site } from '@/data/site';
 import { Wordmark } from './LogoSymbol';
 import TransitionLink from './TransitionLink';
 
-type Who = keyof typeof site.join.form.options;
+type Who = keyof typeof site.auth.roles;
 
-/** /join#students, #manufacturers (or the older #makers) and #partners pick that option. */
+/** /join#students, #manufacturers (or the older #makers) and #partners pick that choice for sign up. */
 const FROM_HASH: Record<string, Who> = {
   students: 'student', student: 'student',
   manufacturers: 'manufacturer', manufacturer: 'manufacturer', makers: 'manufacturer', maker: 'manufacturer',
@@ -19,29 +18,17 @@ const FROM_HASH: Record<string, Who> = {
 const whoFromHash = () => FROM_HASH[window.location.hash.slice(1).toLowerCase()];
 
 /**
- * A blank in the sentence: exactly as wide as what's typed in it (or its hint while empty). A
- * hidden copy of the text sits in the same grid cell and sets the width (see .blank in CSS).
- */
-function Blank({ text, pick = false, children }: { text: string; pick?: boolean; children: ReactNode }) {
-  return <span className={pick ? 'blank pick' : 'blank'} data-text={text}>{children}</span>;
-}
-
-/**
  * The join page. First screen: "Pick your way in." and three tall photo panels (Student,
- * Manufacturer, Partner) over a dark, maroon-washed sewing video. Hovering one widens it, lights its photo, turns its word heavy and
- * pink, and shows a frosted box with what to send; clicking it glides down to the form with
- * that option picked. Then "Say salaam.": a form written as a sentence with blanks to fill in.
- * The form isn't connected to a form service yet, so Send shows where to send it instead.
+ * Manufacturer, Partner) over a dark, maroon-washed sewing video. Hovering one widens it, lights
+ * its photo, turns its word heavy and pink, and shows a frosted box with what it's for; clicking
+ * it opens sign up with that choice picked. Then "Say salaam.": the way in, Sign up or Log in.
  */
 export default function Join() {
   const j = site.join;
   const f = j.form;
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [who, setWho] = useState<Who>('student');
-  const [fields, setFields] = useState({ name: '', city: '', contact: '' });
-  const [message, setMessage] = useState('');
-  const [sent, setSent] = useState(false);
+  const [who, setWho] = useState<Who | null>(null);
 
   // the background video: started by hand too (some browsers skip autoplay until `muted` is set
   // as a property), and kept still for people who prefer reduced motion
@@ -53,7 +40,7 @@ export default function Join() {
     else v.play().catch(() => {});
   }, []);
 
-  // a link from the home page (/join#students...) picks the matching option
+  // a link from the home page (/join#students...) picks that choice for the Sign up button
   useEffect(() => {
     const pick = () => { const w = whoFromHash(); if (w) setWho(w); };
     pick();
@@ -78,19 +65,7 @@ export default function Join() {
     return unregister;
   }, { scope: ref });
 
-  const choose = (e: MouseEvent<HTMLAnchorElement>, w: Who) => {
-    e.preventDefault();
-    setWho(w);
-    scrollToId('apply');
-  };
-  const onField = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFields((v) => ({ ...v, [name]: value }));
-  };
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setSent(true);
-  };
+  const signupHref = who ? `/signup?as=${who}` : '/signup';
 
   return (
     <div className="join" ref={ref}>
@@ -114,7 +89,7 @@ export default function Join() {
         </div>
         <nav className="jn-panels" aria-label={j.panelsLabel}>
           {j.panels.map((p) => (
-            <a key={p.who} className="jp" href="#apply" onClick={(e) => choose(e, p.who)}>
+            <TransitionLink key={p.who} className="jp" href={`/signup?as=${p.who}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={p.img} alt="" style={{ objectPosition: p.pos }} />
               <span className="jp-n" aria-hidden="true">{p.n}</span>
@@ -123,12 +98,13 @@ export default function Join() {
                 <span className="jp-d">{p.text}</span>
                 <i aria-hidden="true">→</i>
               </span>
-            </a>
+            </TransitionLink>
           ))}
         </nav>
       </section>
 
-      <section className="jn-ml" id="apply" aria-labelledby="mlH">
+      {/* the way in: make an account, or log in */}
+      <section className="jn-ml jn-go" id="apply" aria-labelledby="mlH">
         <div className="jn-ml-head">
           <p className="bb-k">{f.kicker}</p>
           <h2 id="mlH" aria-label={f.heading.join(' ')}>
@@ -136,51 +112,18 @@ export default function Join() {
             <span className="ln" aria-hidden="true"><span><em>{f.heading[1]}</em></span></span>
           </h2>
         </div>
-        <form className="ml" noValidate onSubmit={onSubmit}>
-          <p>
-            Hi, my name is{' '}
-            <Blank text={fields.name || f.placeholders.name}>
-              <input name="name" value={fields.name} onChange={onField} placeholder={f.placeholders.name} autoComplete="name" aria-label="Your name" size={1} />
-            </Blank>
-            . I&rsquo;m a{' '}
-            <Blank text={f.options[who]} pick>
-              <select name="who" value={who} onChange={(e) => setWho(e.target.value as Who)} aria-label="I am a">
-                {(Object.keys(f.options) as Who[]).map((k) => (
-                  <option key={k} value={k}>{f.options[k]}</option>
-                ))}
-              </select>
-            </Blank>{' '}
-            from{' '}
-            <Blank text={fields.city || f.placeholders.city}>
-              <input name="city" value={fields.city} onChange={onField} placeholder={f.placeholders.city} autoComplete="address-level2" aria-label="Your city" size={1} />
-            </Blank>
-            .
-          </p>
-          <p>
-            You can reach me at{' '}
-            <Blank text={fields.contact || f.placeholders.contact}>
-              <input name="contact" value={fields.contact} onChange={onField} placeholder={f.placeholders.contact} autoComplete="email" aria-label="E-mail or WhatsApp" size={1} />
-            </Blank>
-            .
-          </p>
-          <label className="about">
-            <span className="lbl">{f.about}</span>
-            <textarea name="message" rows={2} value={message} onChange={(e) => setMessage(e.target.value)} placeholder={f.hints[who]} />
-          </label>
-          <div className="ml-row">
-            <button type="submit" className="dpill">
-              <span>{f.send}</span>
+        <div className="jn-go-in">
+          <p className="jn-go-lead">{f.lead}</p>
+          <div className="jn-go-row">
+            <TransitionLink className="dpill" href={signupHref}>
+              <span>{f.signup}</span>
               <i aria-hidden="true"><b>→</b><b>→</b></i>
-            </button>
-            <p className="jn-note" role="status">
-              {sent && (
-                <>
-                  {f.notSent} <b>{site.contact.email}</b> or WhatsApp <b>{site.contact.whatsapp}</b>.
-                </>
-              )}
+            </TransitionLink>
+            <p className="jn-go-login">
+              {f.loginText} <TransitionLink href="/login">{f.login}</TransitionLink>
             </p>
           </div>
-        </form>
+        </div>
       </section>
     </div>
   );
