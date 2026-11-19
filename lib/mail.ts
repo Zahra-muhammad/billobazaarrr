@@ -11,6 +11,9 @@ import nodemailer from 'nodemailer';
  */
 
 export type Recipient = { name: string; email: string };
+
+/** network errors worth trying again (as opposed to, say, a wrong password) */
+const NETWORK_HICCUP = /EBUSY|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ESOCKET|ECONNECTION|EDNS|socket hang up|timeout/i;
 export type SendResult = { configured: boolean; delivered: number; failed: number; error?: string };
 
 export function mailConfigured() {
@@ -50,12 +53,23 @@ export async function sendToPeople(people: Recipient[], subject: string, body: s
   const worker = async () => {
     for (let r = queue.shift(); r; r = queue.shift()) {
       const text = personalise(body, r);
-      try {
-        await transport.sendMail({ from, to: { name: r.name, address: r.email }, subject: personalise(subject, r), text, html: html(text) });
-        delivered++;
-      } catch (e) {
-        failed++;
-        error ??= e instanceof Error ? e.message : String(e);
+      // a brief network hiccup (the mail server's address not found for a moment, a dropped
+      // connection) is tried again, up to 3 times, before it counts as failed
+      for (let attempt = 1; ; attempt++) {
+        try {
+          await transport.sendMail({ from, to: { name: r.name, address: r.email }, subject: personalise(subject, r), text, html: html(text) });
+          delivered++;
+          break;
+        } catch (e) {
+          const why = `${(e as { code?: string })?.code ?? ''} ${e instanceof Error ? e.message : String(e)}`;
+          if (attempt < 3 && NETWORK_HICCUP.test(why)) {
+            await new Promise((ok) => setTimeout(ok, 800 * attempt));
+            continue;
+          }
+          failed++;
+          error ??= NETWORK_HICCUP.test(why) ? 'Couldn’t reach the email server (a network hiccup). Please try again in a moment.' : why.trim();
+          break;
+        }
       }
     }
   };
