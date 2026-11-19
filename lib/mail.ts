@@ -1,4 +1,6 @@
 import 'server-only';
+import { promises as dns } from 'node:dns';
+import { isIP } from 'node:net';
 import nodemailer from 'nodemailer';
 
 /**
@@ -36,12 +38,40 @@ function html(body: string) {
 </div>`;
 }
 
+/**
+ * The mail server's IPv4 address. On Vercel the usual lookup can fail ("getaddrinfo EBUSY") even
+ * though the internet works, so this tries, in turn: the system lookup, public DNS servers, and
+ * DNS over HTTPS from 1.1.1.1 (reached by its address, so it needs no lookup of its own).
+ */
+async function findAddress(host: string): Promise<string | null> {
+  if (isIP(host)) return host;
+  try { return (await dns.lookup(host, { family: 4 })).address; } catch { /* next way */ }
+  try {
+    const resolver = new dns.Resolver({ timeout: 3000, tries: 2 });
+    resolver.setServers(['1.1.1.1', '8.8.8.8']);
+    const found = await resolver.resolve4(host);
+    if (found[0]) return found[0];
+  } catch { /* next way */ }
+  try {
+    const res = await fetch(`https://1.1.1.1/dns-query?name=${encodeURIComponent(host)}&type=A`, { headers: { accept: 'application/dns-json' }, cache: 'no-store', signal: AbortSignal.timeout(5000) });
+    const json = (await res.json()) as { Answer?: { type: number; data: string }[] };
+    const a = json.Answer?.find((x) => x.type === 1 && isIP(x.data) === 4)?.data;
+    if (a) return a;
+  } catch { /* give up: connect by name as usual */ }
+  return null;
+}
+
 /** Sends the message to each person separately (no one sees anyone else's address). */
 export async function sendToPeople(people: Recipient[], subject: string, body: string): Promise<SendResult> {
   if (!mailConfigured()) return { configured: false, delivered: 0, failed: 0 };
+  const host = process.env.SMTP_HOST!;
   const port = Number(process.env.SMTP_PORT || 465);
+  // connect to the address found above, but check the server's certificate under its real name,
+  // so the connection is exactly as secure as connecting by name
+  const address = await findAddress(host);
   const transport = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
+    host: address ?? host,
+    servername: host,
     port,
     secure: port === 465,
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
