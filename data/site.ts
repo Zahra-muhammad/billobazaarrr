@@ -21,7 +21,7 @@ export const site = {
   name: 'Billo Bazaar',
   domain: 'billobazaar.pk',
   description:
-    "We help Pakistan's fashion students launch their own fabric labels. Manufacturers, customers, marketing, exhibitions and investors, all in one place, so talent doesn't stop at graduation.",
+    "Billo Bazaar turns the prints and embroidery of Pakistan's fashion students into unstitched fabric that people can buy. We find the manufacturer, get the strike-off approved and sell it, with the student's name on the design.",
 
   contact: {
     email: EMAIL,
@@ -85,9 +85,9 @@ export const site = {
   },
 
   hero: {
-    title: 'From fashion student to',
-    em: 'fashion brand.',
-    lede: "We help Pakistan's fashion students launch their own fabric labels. Manufacturers, customers, marketing, exhibitions and investors, all in one place, so talent doesn't stop at graduation.",
+    title: 'Every print',
+    em: 'starts on paper.',
+    lede: "Billo Bazaar turns the prints and embroidery of Pakistan's fashion students into unstitched fabric that people can buy. We find the manufacturer, get the strike-off approved and sell it, with the student's name on the design.",
     videoSrc: '/hero.mp4',
     videoNote: '[ Your full-screen video goes here ]',
   },
@@ -97,7 +97,7 @@ export const site = {
   // Photos live in /public/img; `pos` is the part of the photo kept in view (object-position).
   landing: {
     videoSrc: '/hero2.mp4',
-    lines: ['From fashion student,', 'to fabric label.'],
+    lines: ['Every print', 'starts on paper.'],
     cta: { label: 'Start with your design', href: '/signup?as=student' }, // the way to sign up
     cards: {
       how: { label: 'How it works', href: '#how' },
@@ -107,8 +107,8 @@ export const site = {
     rowLabel: 'Who we work with',
     // each opens the join page with that option already picked in its form
     row: [
-      { label: 'For students', text: 'Launch your own fabric label.', img: '/img/tiled-floor.jpg', pos: '50% 35%', href: '/join#students' },
-      { label: 'For manufacturers', text: 'Print and embroider for new labels.', img: '/img/tailor.jpg', pos: '50% 85%', href: '/join#manufacturers' },
+      { label: 'For students', text: 'Get your designs printed and sold.', img: '/img/tiled-floor.jpg', pos: '50% 35%', href: '/join#students' },
+      { label: 'For manufacturers', text: 'Print and embroider new student designs.', img: '/img/tailor.jpg', pos: '50% 85%', href: '/join#manufacturers' },
       { label: 'For partners', text: 'Stores, investors and exhibitions.', img: '/img/sari.jpg', pos: '50% 70%', href: '/join#partners' },
     ],
   },
@@ -118,8 +118,8 @@ export const site = {
     title: 'About',
     videoSrc: '/hero.mp4', // behind the first screen, washed deep maroon like the join page
     kicker: '( About Billo Bazaar )',
-    heading: ["We don't print", 'the fabric,', 'we launch', 'the label.'],
-    lede: "Billo Bazaar connects Pakistan's fashion students with the manufacturers, customers and partners who turn a print design into an unstitched collection.",
+    heading: ['We design', 'the fabric,', 'they make it.'],
+    lede: 'Students design the fabric. We connect them with manufacturers, who make a sample. Once it gets a yes, the fabric is made and we sell it, unstitched.',
     why: {
       kicker: '( Why we exist )',
       text: "Every year, fashion students across Pakistan design prints and embroidery good enough for any store shelf. Then the jury leaves, the swatches go into a folder, and most of those designs never reach a single customer. The talent is there. What's missing is a manufacturer and a market.",
@@ -131,7 +131,7 @@ export const site = {
     },
     // the two lines of big words that slide past each other as you scroll
     bands: [
-      ['Print', 'Strike-off', 'Label', 'Bazaar'],
+      ['Print', 'Strike-off', 'Unstitched', 'Bazaar'],
       ['Students', 'Manufacturers', 'Partners', 'Customers'],
     ],
     // how we work: the four promises, each row with the photo shown beside the heading
@@ -139,7 +139,7 @@ export const site = {
       kicker: '( How we work )',
       heading: ['Four', 'promises.'],
       items: [
-        { title: 'The artwork stays theirs.', text: 'We never design for a student. The prints, the label name and the story belong to the person who drew them.', img: '/img/sketches.jpg', pos: '50% 50%' },
+        { title: 'Your design, your name.', text: 'The prints and the story behind them belong to the student who drew them, and their name goes on every design we sell.', img: '/img/sketches.jpg', pos: '50% 50%' },
         { title: 'Made here.', text: 'Every strike-off and every first run is printed, woven or embroidered by manufacturers in Pakistan.', img: '/img/tailor.jpg', pos: '50% 85%' },
         { title: 'Nothing without a yes.', text: 'A strike-off is just a test until the designer approves it. Nothing is printed in quantity before that.', img: '/img/handshake.jpg', pos: '50% 50%' },
         { title: 'Worn, not filed.', text: 'Designs belong on cloth that people stitch and wear, not in a portfolio. Everything we do is about getting the work bought.', img: '/img/models-arch.jpg', pos: '50% 30%' },
@@ -166,7 +166,7 @@ export const site = {
     heading: ['Pick your', 'way in.'],
     panelsLabel: 'Ways to join',
     panels: [
-      { who: 'student', n: '01', word: 'Student', text: 'Send your print or embroidery artwork, the cloth you have in mind, and the label you want to build.', img: '/img/join-student.jpg', pos: '50% 50%' },
+      { who: 'student', n: '01', word: 'Student', text: 'Send your print or embroidery artwork and the cloth you have in mind. We get it made and sell it.', img: '/img/join-student.jpg', pos: '50% 50%' },
       { who: 'manufacturer', n: '02', word: 'Manufacturer', text: 'Digital, screen or block printing, weaving or embroidery: tell us the cloth you work with and the size of runs you take.', img: '/img/join-maker.jpg', pos: '40% 50%' },
       { who: 'partner', n: '03', word: 'Partner', text: 'Store, investor or exhibition space: tell us who you are and what you have in mind.', img: '/img/join-partner.jpg', pos: '45% 50%' },
     ],
@@ -183,7 +183,7 @@ export const site = {
   // "Your print, on real cloth." (components/Intro.tsx): the dark card that slides over the hero
   intro: {
     lines: ['Your', 'Print,', 'on real cloth.'],
-    text: "Billo Bazaar helps Pakistan's fashion students turn their prints and embroidery into unstitched collections. You design the fabric. We find the manufacturer to print it, get you a strike-off you are proud of, and launch it under your own label.",
+    text: "Billo Bazaar turns the prints and embroidery of Pakistan's fashion students into unstitched fabric that people can buy. You design it. We find the manufacturer to print it, get you a strike-off you are proud of, and sell it.",
   },
 
   // "How it works" (components/HowItWorks.tsx): five pinned steps, each with a photo in /public/img
@@ -202,7 +202,7 @@ export const site = {
         item: 'We find your manufacturer.',
         tags: ['Printing', 'Embroidery', 'Small runs'],
         title: { before: 'We find your', em: 'manufacturer.', after: '' },
-        text: 'We match you with a manufacturer who works with your cloth and your technique (digital, screen or block printing, or embroidery) and can do a small first run that suits a new label.',
+        text: 'We match you with a manufacturer who works with your cloth and your technique (digital, screen or block printing, or embroidery) and can do a small first run of your design.',
         photo: { src: '/img/tailor.jpg', alt: 'A tailor sewing at a machine', pos: '50% 88%', note: 'a tailor at a sewing machine' },
       },
       {
@@ -220,10 +220,10 @@ export const site = {
         photo: { src: '/img/handshake.jpg', alt: 'Two hands shaking in agreement', pos: '50% 50%', note: 'a handshake' },
       },
       {
-        item: 'We launch it.',
-        tags: ['Unstitched suits', 'Shoot', 'Exhibitions'],
-        title: { before: 'We', em: 'launch', after: 'it.' },
-        text: 'Once it is approved, your fabric goes out as unstitched suits under your own label. We shoot it and put it in front of customers, online and at our exhibitions.',
+        item: 'We sell it.',
+        tags: ['Unstitched suits', 'Online', 'Exhibitions'],
+        title: { before: 'We', em: 'sell', after: 'it.' },
+        text: 'Once it is approved, your fabric is made into unstitched suits. We shoot it and sell it to customers online and at our exhibitions, with your name on the design.',
         photo: { src: '/img/tea.jpg', alt: 'Women in embroidered suits sharing tea', pos: '50% 40%', note: 'women sharing tea' },
       },
     ],
@@ -253,17 +253,17 @@ export const site = {
 
   // Placeholder pages behind the menu links. The ledes are placeholder copy too.
   pages: {
-    labels: { label: 'New labels', title: 'New', em: 'labels.', lede: "New labels from Pakistan's fashion graduates are on their way." },
-    designers: { label: 'Designers', title: 'The', em: 'designers.', lede: 'Meet the students behind the labels. Profiles are coming soon.' },
-    drops: { label: 'Drops', title: 'Latest', em: 'drops.', lede: 'Small-run collections from new labels. The first drop is coming soon.' },
-    exhibitions: { label: 'Exhibitions', title: 'Physical', em: 'exhibitions.', lede: 'Shows where customers meet new labels in person. Dates coming soon.' },
+    labels: { label: 'New designs', title: 'New', em: 'designs.', lede: "New fabric designs from Pakistan's fashion graduates are on their way." },
+    designers: { label: 'Designers', title: 'The', em: 'designers.', lede: 'Meet the students behind the designs. Profiles are coming soon.' },
+    drops: { label: 'Drops', title: 'Latest', em: 'drops.', lede: 'Small runs of unstitched fabric, designed by students. The first drop is coming soon.' },
+    exhibitions: { label: 'Exhibitions', title: 'Physical', em: 'exhibitions.', lede: 'Shows where customers meet new student designs in person. Dates coming soon.' },
     story: { label: 'Our story', title: 'Our', em: 'story.', lede: 'Why Billo Bazaar exists and where it is going. The full story is coming soon.' },
   } satisfies Record<string, PageCopy>,
 
   footer: {
     start: '[ Start a conversation ]',
-    title: 'Your label',
-    em: 'starts here.',
+    title: 'Your designs',
+    em: 'start here.',
     cta: { label: 'Start with Billo Bazaar', href: mailto },
     whatWeDo: {
       label: '[ What we do ]',
@@ -271,7 +271,7 @@ export const site = {
         'Manufacturer matching',
         'Strike-offs & sampling',
         'Colour & quality checks',
-        'Label launch',
+        'Selling unstitched fabric',
         'Shoots & marketing',
         'Exhibitions',
         'Store & investor introductions',

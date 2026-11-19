@@ -23,7 +23,7 @@ function Lines({ lines }: { lines: readonly string[] }) {
 /**
  * The about page, in the same language as the home and join pages (dark maroon, peach, pink;
  * Archivo's narrow capitals mixing light and heavy; Inter Tight text; creamy motion):
- *  1. "We don't print the fabric, we launch the label." over a maroon-washed sewing video
+ *  1. "We design the fabric, they make it." over a maroon-washed sewing video
  *  2. why we exist: a paragraph that lights up word by word, two photos drifting at the sides
  *  3. two lines of big words sliding past each other as you scroll
  *  4. how we work: four promises in rows that turn heavy and pink on hover, beside a held heading whose photo
