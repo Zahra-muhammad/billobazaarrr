@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { adminCredentials, getAdmin } from '@/lib/auth';
 import { db, type Role } from '@/lib/db';
-import { mailConfigured } from '@/lib/mail';
+import { mailConfigured, mailSettings } from '@/lib/mail';
 import AdminDashboard, { type AdminData } from '@/components/AdminDashboard';
 
 export const metadata: Metadata = { title: 'Admin', robots: { index: false, follow: false } };
@@ -38,7 +38,7 @@ export default async function AdminPage() {
       added: String(r.created_at), lastSeen: r.last_login_at ? String(r.last_login_at) : null,
     })),
     activeThisWeek: Number(week.rows[0]?.n ?? 0),
-    mail: mailConfigured() ? { on: true, via: process.env.SMTP_HOST ?? '' } : { on: false, via: '' },
+    mail: mailConfigured() ? { on: true, via: mailSettings().host } : { on: false, via: '' },
   };
   return <AdminDashboard data={data} />;
 }

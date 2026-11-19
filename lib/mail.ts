@@ -18,8 +18,22 @@ export type Recipient = { name: string; email: string };
 const NETWORK_HICCUP = /EBUSY|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ESOCKET|ECONNECTION|EDNS|socket hang up|timeout/i;
 export type SendResult = { configured: boolean; delivered: number; failed: number; error?: string };
 
+/**
+ * The email settings, tidied: a space pasted before or after a value (easy to do in a host's
+ * settings page) would otherwise break the server's address or the login. Gmail app passwords
+ * never contain spaces (Google shows them in groups of four), so for Gmail those are removed too.
+ */
+export function mailSettings() {
+  const v = (k: string) => (process.env[k] ?? '').trim();
+  const host = v('SMTP_HOST').replace(/\s+/g, ''), user = v('SMTP_USER');
+  let pass = v('SMTP_PASS');
+  if (/(^|\.)gmail\.com$/i.test(host)) pass = pass.replace(/\s+/g, '');
+  return { host, port: Number(v('SMTP_PORT') || 465), user, pass, from: v('MAIL_FROM') || user };
+}
+
 export function mailConfigured() {
-  return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+  const s = mailSettings();
+  return !!(s.host && s.user && s.pass);
 }
 
 const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]!);
@@ -64,8 +78,7 @@ async function findAddress(host: string): Promise<string | null> {
 /** Sends the message to each person separately (no one sees anyone else's address). */
 export async function sendToPeople(people: Recipient[], subject: string, body: string): Promise<SendResult> {
   if (!mailConfigured()) return { configured: false, delivered: 0, failed: 0 };
-  const host = process.env.SMTP_HOST!;
-  const port = Number(process.env.SMTP_PORT || 465);
+  const { host, port, user, pass, from } = mailSettings();
   // connect to the address found above, but check the server's certificate under its real name,
   // so the connection is exactly as secure as connecting by name
   const address = await findAddress(host);
@@ -74,9 +87,8 @@ export async function sendToPeople(people: Recipient[], subject: string, body: s
     servername: host,
     port,
     secure: port === 465,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    auth: { user, pass },
   });
-  const from = process.env.MAIL_FROM || process.env.SMTP_USER;
   let delivered = 0, failed = 0, error: string | undefined;
   // a few at a time, so a long list doesn't trip the service's limits
   const queue = [...people];
