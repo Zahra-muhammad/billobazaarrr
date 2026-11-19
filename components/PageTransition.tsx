@@ -73,8 +73,16 @@ export default function PageTransition({ children }: { children: ReactNode }) {
     const isMail = href.startsWith('mailto:');
     const [path, hash] = isMail ? [href, ''] : href.split('#');
     const samePage = !isMail && (path || pathRef.current) === pathRef.current;
-    // a hash that isn't a section on the new page (like /join#students) lands at the top
-    const land = () => { if (!hash || !scrollToId(hash, { immediate: true })) scrollToTop(); };
+    // a hash that isn't a section on the new page (like /join#students) lands at the top. On the
+    // page you're already on it's also put in the address, so the page still reads the choice.
+    const land = () => {
+      if (hash && scrollToId(hash, { immediate: true })) return;
+      if (hash && samePage && window.location.hash !== `#${hash}`) {
+        window.history.replaceState(window.history.state, '', `#${hash}`);
+        window.dispatchEvent(new HashChangeEvent('hashchange'));
+      }
+      scrollToTop();
+    };
     const menuMode = opts?.variant === 'menu';
     const pt = ptRef.current, wheel = wheelRef.current, spokes = spokesRef.current, ghost = ghostRef.current, arcs = arcsRef.current, ink = inkRef.current;
 

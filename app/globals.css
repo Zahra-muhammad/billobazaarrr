@@ -489,9 +489,9 @@ footer { --fx: max(20px, 5.2vw); background: #240606; color: #D9C2BD; overflow: 
 .jp img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; opacity: var(--photo-fade); filter: var(--photo-grade) brightness(0.62); transform: scale(1.08); transition: filter 1.1s var(--ease-cream), transform 1.6s var(--ease-cream); }
 .jp-n { position: absolute; top: 20px; left: 22px; font: 500 12px/1 var(--mono); letter-spacing: 0.1em; }
 .jp-b { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px 16px 16px; border-radius: 10px; transition: background-color 0.8s var(--ease-cream), -webkit-backdrop-filter 0.8s var(--ease-cream), backdrop-filter 0.8s var(--ease-cream); }
-/* the word: light at rest, heavy and pink on hover. It shrinks with its panel when the panel is
-   squeezed (the long MANUFACTURER would not fit otherwise). */
-.jp b { font: 300 min(clamp(44px, 5vw, 96px), 15.5cqw)/0.88 var(--display); font-variation-settings: "wdth" 62; text-transform: uppercase; white-space: nowrap; transition: font-weight 0.9s var(--ease-cream), color 0.7s var(--ease-cream); }
+/* the word: light at rest, heavy and pink on hover. It's sized by its panel's width (cqw), so the
+   long MANUFACTURER fits even when the panel is squeezed by a hovered neighbour. */
+.jp b { font: 300 clamp(20px, 9.5cqw, 96px)/0.88 var(--display); font-variation-settings: "wdth" 62; text-transform: uppercase; white-space: nowrap; transition: font-weight 0.9s var(--ease-cream), color 0.7s var(--ease-cream); }
 .jp-d { max-width: 30ch; font: 400 15px/1.4 var(--body); color: #EBCDB8; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6); opacity: 0; transform: translateY(10px); transition: opacity 0.8s var(--ease-cream), transform 1s var(--ease-cream); }
 .jp i { position: absolute; right: 14px; bottom: 14px; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: #EBCDB8; color: #2A0606; font-style: normal; font-size: 18px; transform: scale(0) rotate(-90deg); transition: transform 0.9s var(--ease-cream); }
 .jp:hover .jp-b, .jp:focus-visible .jp-b { background-color: rgba(20, 3, 4, 0.55); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
